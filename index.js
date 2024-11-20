@@ -14,3 +14,13 @@ app.listen(PORT, () => {
 
 const sampleRoute = require('./src/routes/sampleRoute');
 app.use('/api', sampleRoute);
+
+const connection = require('./src/config/database');
+
+connection.query('SELECT 1 + 1 AS result', (err, results) => {
+  if (err) {
+    console.error('Erro ao executar query:', err);
+  } else {
+    console.log('Query executada com sucesso:', results);
+  }
+});
