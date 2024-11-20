@@ -1,0 +1,15 @@
+{
+  "name": "projeto_pay_manager",
+  "version": "1.0.0",
+  "description": "Gerencie suas finanças de forma simples e eficiente",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Miguel Antonio",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.1"
+  }
+}
