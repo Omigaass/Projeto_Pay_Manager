@@ -3,8 +3,11 @@ const app = express();
 
 app.use(express.json());
 
-const authRoute = require('./src/routes/authRoute');
-app.use('/api/auth', authRoute);
+const usuarioRoute = require('./src/routes/usuarioRoute');
+app.use('/api/auth', usuarioRoute);
+
+const movimentacaoRoute = require('./src/routes/movimentacaoRoute');
+app.use('/api/movimentacao', movimentacaoRoute);
 
 const PORT = 3000;
 app.listen(PORT, () => {
