@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pay Manager</title>
+</head>
+<body>
+  <h1>Pay Manager</h1>
+  <form onsubmit="processLogin(event)">
+    <label for="cpf_cnpj">CPF/CNPJ:</label>
+    <input type="text" id="cpf_cnpj" name="cpf_cnpj" required>
+    <label for="senha">Senha:</label>
+    <input type="password" id="senha" name="senha" required>
+    <button type="submit">Entrar</button>
+  </form>  
+
+  <script>
+    function processLogin(event) {
+      event.preventDefault();
+
+      const cpf_cnpj = document.getElementById('cpf_cnpj').value;
+      const senha = document.getElementById('senha').value;
+
+      console.log('CPF/CNPJ:', cpf_cnpj);
+      console.log('Senha:', senha);
+
+      if (!cpf_cnpj || !senha) {
+        alert('CPF/CNPJ e senha obrigatórios.');
+        return;
+      }
+
+      fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ cpf_cnpj, senha })
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data.message);
+        if(data.usu_id) {
+          fetch('/api/movimentacao/read', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ usu_id: data.usu_id })
+          })
+          .then(response => response.json())
+          .then(data => {
+              data.movimentacoes.forEach(movimentacao => {
+                console.log(movimentacao);
+              });
+          })
+          .catch(error => {
+            console.error('Erro ao buscar movimentações:', error);
+            alert('Erro ao buscar movimentações.');
+          });
+        }
+      })
+      .catch(error => {
+        console.error('Erro ao autenticar:', error);
+        alert('Erro ao autenticar.');
+      });
+    }
+  </script>
+</body>
+</html>

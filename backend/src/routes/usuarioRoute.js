@@ -67,7 +67,10 @@ router.post('/login', (req, res) => {
                 return res.status(400).json({ message: 'Senha incorreta.' });
             }
 
-            return res.status(200).json({ message: 'Login realizado com sucesso!' });
+            return res.status(200).json({ 
+                message: 'Login realizado com sucesso!',
+                usu_id: results[0].usu_id
+             });
         });
     });
 });
