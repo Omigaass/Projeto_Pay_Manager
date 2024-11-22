@@ -431,3 +431,54 @@ html[data-theme="light"] {
 
 @media (min-width: 1280px) {
 }
+
+/*  */
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f0f0f0;
+    margin: 0;
+}
+
+.container {
+    display: flex;
+    justify-content: center; /* Centraliza o conteúdo horizontalmente */
+    align-items: center; /* Centraliza o conteúdo verticalmente */
+    position: relative;
+    width: 300px; /* Ajuste a largura conforme necessário */
+    height: 400px; /* Ajuste a altura conforme necessário */
+}
+
+.modal {
+    position: absolute;
+    background-color: white;
+    padding: 20px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    height: 100%;
+    transition: opacity 0.5s ease; /* Animação de fade */
+}
+
+.hidden {
+    opacity: 0; /* Torna o modal invisível */
+    pointer-events: none; /* Impede a interação com o modal oculto */
+}
+
+.show-register #login-modal {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.show-register #register-modal {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.title-login {
+    text-align: center;
+    margin-bottom: 100px;
+    margin-right: 500px;
+}
