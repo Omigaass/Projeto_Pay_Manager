@@ -34,6 +34,9 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Fix Jest permissions
+        run: chmod +x ./node_modules/.bin/jest
+
       - name: Wait for MySQL to be ready
         run: |
           while ! mysqladmin -h127.0.0.1 -P3306 --protocol=tcp ping --silent; do
