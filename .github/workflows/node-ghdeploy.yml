@@ -1,0 +1,51 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+    steps:
+      # Passo 1: Fazer checkout do código
+      - uses: actions/checkout@v3
+
+      # Passo 2: Configurar o Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16' # Altere para a versão necessária
+
+      # Passo 3: Cache de dependências
+      - name: Cache Node.js dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      # Passo 4: Instalar dependências
+      - run: npm ci
+
+      # Passo 5: Construir o projeto
+      - run: npm run build # Certifique-se que o `npm run build` gera os arquivos estáticos no diretório correto
+
+      # Passo 6: Executar o servidor (index.js)
+      - name: Start Server
+        run: node index.js & # Executa em background
+
+      # Passo 7: Publicar no GitHub Pages
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        if: github.ref == 'refs/heads/main'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public # Altere para o diretório gerado
