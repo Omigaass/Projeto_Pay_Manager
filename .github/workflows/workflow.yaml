@@ -2,9 +2,12 @@ name: Continous Integration
 
 #trigger pro workflow
 on:
+  push:
+    branches:
+      - main
   pull_request:
     branches:
-      ['main']
+      - main
 # deine pro pages
 jobs:
   continous-integration:
