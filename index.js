@@ -6,10 +6,10 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-app.use('/public', express.static(path.join(__dirname, 'web/src/public')));
+app.use('/public', express.static(path.join(__dirname, '/src/public')));
 
 app.get('/home', (req, res) => {
-    res.sendFile(path.join(__dirname, 'web/src/pages/home.html'));
+    res.sendFile(path.join(__dirname, '/src/pages/home.html'));
 });
 
 
@@ -21,7 +21,7 @@ if (require.main === module) {
 }
 
 app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/web/src/pages/index.html');
+    res.sendFile(__dirname + '/src/index.html');
 });
 
 // ------------------------------ //
