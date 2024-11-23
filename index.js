@@ -3,7 +3,27 @@ const app = express();
 
 app.use(express.json());
 
-const usuarioRoute = require('./src/routes/usuarioRoute');
+app.use('/public', express.static(path.join(__dirname, 'web/src/public')));
+// Rota para a página Home
+app.get('/home', (req, res) => {
+    res.sendFile(path.join(__dirname, 'web/src/pages/home.html'));
+});
+
+
+module.exports = app;
+
+if (require.main === module) {
+  const PORT = 3000;
+  app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
+}
+
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/web/src/pages/index.html');
+});
+
+// ------------------------------ //
+
+const usuarioRoute = require('./backend/src/routes/usuarioRoute');
 app.use('/api/auth', usuarioRoute);
 
 const movimentacaoRoute = require('./src/routes/movimentacaoRoute');
