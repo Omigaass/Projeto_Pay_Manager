@@ -26,6 +26,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Corrigir permissões
+        run: sudo chmod -R 777 .
       - name: Checkout
         uses: actions/checkout@v4
       - name: Setup Pages
