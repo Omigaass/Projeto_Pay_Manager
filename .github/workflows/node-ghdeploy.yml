@@ -23,6 +23,9 @@ jobs:
         with:
           node-version: '16' # Altere para a versão necessária
 
+      - name: Fix permissions
+        run: chmod +x ./node_modules/.bin/*
+
       # Passo 3: Cache de dependências
       - name: Cache Node.js dependencies
         uses: actions/cache@v3
