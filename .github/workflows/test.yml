@@ -12,16 +12,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    services:
-      mysql:
-        image: mysql:5.7
-        env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: pay_manager_test
-        ports:
-          - 3306:3306
-        options: --health-cmd="mysqladmin ping --host 127.0.0.1 --silent" --health-interval=5s --health-timeout=5s --health-retries=3
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -29,21 +19,10 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '21.6.1'
+          node-version: '16'
 
       - name: Install dependencies
         run: npm install
-
-      - name: Fix Jest permissions
-        run: chmod +x ./node_modules/.bin/jest
-
-      - name: Wait for MySQL to be ready
-        run: |
-          while ! mysqladmin -h127.0.0.1 -P3306 --protocol=tcp ping --silent; do
-            echo "Waiting for MySQL..."
-            sleep 2
-          done
-          echo "MySQL is ready!"
 
       - name: Run tests
         run: npm test
