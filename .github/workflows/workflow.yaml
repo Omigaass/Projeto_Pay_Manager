@@ -1,0 +1,22 @@
+name: Continous Integration
+
+#trigger pro workflow
+on: pull_request
+
+
+# deine pro pages
+jobs:
+  continous-integration:
+    runs-on:  ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Using Node.JS
+        uses: actions/setup-node@v2
+        with:
+          node-version: 21.
+    - name:  run intall, build and test
+      run: |
+        npm install
+        npm run build
+        npm run test
