@@ -1,19 +1,363 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pay Manager</title>
-    <link rel="stylesheet" href="/public/css/root.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pay Manager - Home</title>
+  <link rel="stylesheet" href="/public/css/root.css">
+  <style>
+    /* Estilo da tela Home */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .summary {
+      display: flex;
+      justify-content: space-between;
+      width: 80%;
+      margin-bottom: 20px;
+    }
+
+    .summary div {
+      font-size: 1.5em;
+    }
+
+    .container {
+      display: flex;
+      justify-content: space-between;
+      width: 80%;
+    }
+
+    .box {
+      background-color: #fff;
+      padding: 20px;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+      width: 45%;
+    }
+
+    .box h2 {
+      margin-top: 0;
+    }
+
+    .add-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+
+    .add-buttons button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+    }
+
+    .add-income {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .add-expense {
+      background-color: #f44336;
+      color: white;
+    }
+
+    .list {
+      margin-top: 20px;
+    }
+
+    .list-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+      align-items: center;
+    }
+
+    .list-item:last-child {
+      border-bottom: none;
+    }
+
+    .delete-button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #f44336;
+    }
+
+    /* Estilo dos Modais */
+    .modal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: white;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      width: 300px;
+      display: none; /* Oculto por padrão */
+      z-index: 1000;
+    }
+
+    .modal.visible {
+      display: block;
+    }
+
+    .modal h2 {
+      margin-top: 0;
+      text-align: center;
+    }
+
+    .modal input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      box-sizing: border-box;
+    }
+
+    .modal button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+
+    /* Fundo Escuro ao Exibir Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+      display: none;
+    }
+
+    .modal-overlay.visible {
+      display: block;
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <h1>Pay Manager</h1>
-    </header>
-    <br>
-    <div class="container">
-        <p>Receitas</p> <br>
-        <p>Despesas</p>
+  <h1>Pay Manager - Home</h1>
+
+  <!-- Resumo de Receitas e Despesas -->
+  <div class="summary">
+    <div class="income-summary">Receitas: R$00,00</div>
+    <div class="expense-summary">Despesas: R$00,00</div>
+  </div>
+
+  <!-- Container para receitas e despesas -->
+  <div class="container">
+    <!-- Box para Receitas -->
+    <div class="box">
+      <h2>Receitas</h2>
+      <div class="list income-list">
+        <!-- Lista de receitas será inserida aqui -->
+      </div>
     </div>
+
+    <!-- Box para Despesas -->
+    <div class="box">
+      <h2>Despesas</h2>
+      <div class="list expense-list">
+        <!-- Lista de despesas será inserida aqui -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Botões para adicionar receitas e despesas -->
+  <div class="add-buttons">
+    <button class="add-income" onclick="showModal('income-modal')">Adicionar Receita</button>
+    <button class="add-expense" onclick="showModal('expense-modal')">Adicionar Despesa</button>
+  </div>
+
+  <!-- Modais (Popup) para adicionar Receita/Despesa -->
+  <div id="modal-overlay" class="modal-overlay"></div>
+
+  <div id="income-modal" class="modal">
+    <h2>Adicionar Receita</h2>
+    <form id="income-form" onsubmit="addIncome(event)">
+      <label for="income-desc">Descrição:</label>
+      <input type="text" id="income-desc" required>
+      <label for="income-value">Valor:</label>
+      <input type="number" id="income-value" step="0.01" required>
+      <button type="submit">Adicionar</button>
+    </form>
+  </div>
+
+  <div id="expense-modal" class="modal">
+    <h2>Adicionar Despesa</h2>
+    <form id="expense-form" onsubmit="addExpense(event)">
+      <label for="expense-desc">Descrição:</label>
+      <input type="text" id="expense-desc" required>
+      <label for="expense-value">Valor:</label>
+      <input type="number" id="expense-value" step="0.01" required>
+      <button type="submit">Adicionar</button>
+    </form>
+  </div>
+
+  <script>
+    // Mostrar e esconder modais
+    function showModal(modalId) {
+      document.getElementById(modalId).classList.add('visible');
+      document.getElementById('modal-overlay').classList.add('visible');
+    }
+
+    function hideModal() {
+      document.querySelectorAll('.modal').forEach(modal => modal.classList.remove('visible'));
+      document.getElementById('modal-overlay').classList.remove('visible');
+    }
+
+    // Fechar modais ao clicar no fundo escuro
+    document.getElementById('modal-overlay').addEventListener('click', hideModal);
+
+    // Adicionar Receita
+    function addIncome(event) {
+      event.preventDefault();
+
+      const desc = document.getElementById('income-desc').value;
+      const valor = parseFloat(document.getElementById('income-value').value);
+
+      fetch('/api/movimentacao/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          desc,
+          valor,
+          data: new Date().toISOString().split('T')[0],
+          usuario_id: 1,
+          usuario_criacao: 1
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.message === 'Movimentação inserida com sucesso!') {
+          alert('Receita adicionada com sucesso!');
+          hideModal();
+          loadIncomeAndExpenses();
+        }
+      })
+      .catch(error => console.error('Erro ao adicionar receita:', error));
+    }
+
+    // Adicionar Despesa
+    function addExpense(event) {
+      event.preventDefault();
+
+      const desc = document.getElementById('expense-desc').value;
+      const valor = parseFloat(document.getElementById('expense-value').value) * -1;
+
+      fetch('/api/movimentacao/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          desc,
+          valor,
+          data: new Date().toISOString().split('T')[0],
+          usuario_id: 1,
+          usuario_criacao: 1
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.message === 'Movimentação inserida com sucesso!') {
+          alert('Despesa adicionada com sucesso!');
+          hideModal();
+          loadIncomeAndExpenses();
+        }
+      })
+      .catch(error => console.error('Erro ao adicionar despesa:', error));
+    }
+
+    // Carregar Receitas e Despesas ao Carregar a Página
+    document.addEventListener('DOMContentLoaded', function () {
+      loadIncomeAndExpenses();
+    });
+
+    // Função para carregar receitas e despesas
+    function loadIncomeAndExpenses() {
+      fetch('/api/movimentacao/read', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ usuario_id: 1 })
+      })
+      .then(response => response.json())
+      .then(data => {
+        // Limpar listas
+        document.querySelector('.income-list').innerHTML = '';
+        document.querySelector('.expense-list').innerHTML = '';
+
+        // Calcular totais
+        let totalIncome = 0;
+        let totalExpense = 0;
+
+        // Listar receitas e despesas
+        data.forEach(item => {
+          const value = parseFloat(item.mov_valor);
+          const description = item.mov_desc;
+
+          if (value > 0) {
+            totalIncome += value;
+            document.querySelector('.income-list').innerHTML += `
+              <div class="list-item">
+                <span>${description}</span>
+                <span>R$${value.toFixed(2)}</span>
+                <button class="delete-button" onclick="deleteItem(${item.mov_id}, true)">🗑️</button>
+              </div>
+            `;
+          } else {
+            totalExpense += Math.abs(value);
+            document.querySelector('.expense-list').innerHTML += `
+              <div class="list-item">
+                <span>${description}</span>
+                <span>R$${Math.abs(value).toFixed(2)}</span>
+                <button class="delete-button" onclick="deleteItem(${item.mov_id}, false)">🗑️</button>
+              </div>
+            `;
+          }
+        });
+
+        // Atualizar resumos
+        document.querySelector('.income-summary').textContent = `Receitas: R$${totalIncome.toFixed(2)}`;
+        document.querySelector('.expense-summary').textContent = `Despesas: R$${totalExpense.toFixed(2)}`;
+      })
+      .catch(error => console.error('Erro ao carregar receitas e despesas:', error));
+    }
+
+    // Função para deletar um item de receita ou despesa
+    function deleteItem(id, isIncome) {
+      const usuario_exclusao = 1; // Substitua pelo ID do usuário autenticado
+      fetch('/api/movimentacao/delete', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ mov_id: id, usuario_exclusao })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.message === 'Movimentação excluída com sucesso!') {
+          alert('Item excluído com sucesso!');
+          loadIncomeAndExpenses();
+        }
+      })
+      .catch(error => console.error('Erro ao excluir item:', error));
+    }
+  </script>
 </body>
 </html>

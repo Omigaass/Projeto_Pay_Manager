@@ -12,13 +12,17 @@ router.post('/create', async (req, res) => {
   }
 
   const dataFormatada = data.split('-').reverse().join('-');
-  const valorNumerico = parseFloat(valor.replace(',', '.'));
+  // Garantir que o valor seja um número decimal válido
+const valorNumerico = typeof valor === 'number' ? valor : parseFloat(valor.replace(',', '.'));
+
 
   try {
     const connection = await pool.getConnection();
     try {
-      const query = 'CALL sp_inserir_movimentacao(?, ?, ?, ?, ?, @mov_id)';
+      // Corrigir a quantidade de parâmetros para a chamada da procedure
+      const query = 'CALL sp_inserir_movimentacao(?, ?, ?, ?, ?)';
       const values = [desc, valorNumerico, dataFormatada, usuario_id, usuario_criacao];
+
 
       await connection.query(query, values);
 
