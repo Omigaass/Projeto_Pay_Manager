@@ -1,10 +1,10 @@
 const express = require('express');
-const bcrypt = require('bcryptjs');
-const connection = require('../config/database');
+const bcrypt = require('bcrypt');
+const pool = require('../config/database');
 const router = express.Router();
 
 // Rota de registro (POST /register)
-router.post('/register', (req, res) => {
+router.post('/register', async (req, res) => {
   const { nome, email, cpf_cnpj, senha, confirma_senha } = req.body;
 
   if (!nome || !email || !cpf_cnpj || !senha || !confirma_senha) {
@@ -16,63 +16,87 @@ router.post('/register', (req, res) => {
   }
 
   // Gerar hash da senha e armazenar no banco de dados
-  bcrypt.hash(senha, 10, (err, hash) => {
-      if (err) {
-          return res.status(500).json({ message: 'Erro ao gerar hash da senha.' });
-      }
+  try {
+    const hash = await bcrypt.hash(senha, 10);
 
+    const connection = await pool.getConnection();
+    try {
       const query = 'CALL sp_adicionar_usuario(?, ?, ?, ?)';
       const values = [nome, email, cpf_cnpj, hash];
 
-      connection.query(query, values, (err, results) => {
-          connection.end();
+      const [results] = await connection.query(query, values);
+      connection.release();
 
-          if (err) {
-              return res.status(500).json({ message: 'Erro ao registrar usuário.' });
-          }
+      return res.status(201).json({ message: 'Usuário registrado com sucesso!' });
+    } catch (err) {
+      connection.release();
+      return res.status(500).json({ message: 'Erro ao registrar usuário.' });
+    }
 
-          return res.status(201).json({ message: 'Usuário registrado com sucesso!' });
-      });
-  });
+  } catch (err) {
+    return res.status(500).json({ message: 'Erro ao gerar hash da senha.' });
+  }
 });
 
 // Rota de login (POST /login)
-router.post('/login', (req, res) => {
-    const { cpf_cnpj, senha } = req.body;
+router.post('/login', async (req, res) => {
+  const { cpf_cnpj, senha } = req.body;
     
-    if (!cpf_cnpj || !senha) {
-        return res.status(400).json({ message: 'CPF/CNPJ e senha são obrigatórios.' });
+  if (!cpf_cnpj || !senha) {
+      return res.status(400).json({ message: 'CPF/CNPJ e senha são obrigatórios.' });
+  }
+
+  try {
+    const connection = await pool.getConnection();
+    try {
+      const query = 'SELECT * FROM vw_usuario_login WHERE usu_cpf_cnpj = ?';
+      const [results] = await connection.query(query, [cpf_cnpj]);
+
+      connection.release();
+
+      if (results.length === 0) {
+          return res.status(400).json({ message: 'Usuário não encontrado.' });
+      }
+
+      const isMatch = await bcrypt.compare(senha, results[0].usu_senha);
+      if (!isMatch) {
+          return res.status(400).json({ message: 'Senha incorreta.' });
+      }
+
+      return res.status(200).json({ 
+          message: 'Login realizado com sucesso!',
+          usu_id: results[0].usu_id
+      });
+    } catch (err) {
+      connection.release();
+      console.error('Erro ao consultar o banco:', err);
+      return res.status(500).json({ message: 'Erro ao autenticar usuário.' });
+    }
+  } catch (err) {
+    console.error('Erro ao conectar ao banco:', err);
+    return res.status(500).json({ message: 'Erro ao conectar ao banco de dados.' });
+  }
+});
+
+router.delete('/delete-user-p-teste', async (req, res) => {
+  const { cpf_cnpj } = req.body;
+
+  if (!cpf_cnpj) {
+    return res.status(400).json({ message: 'CPF/CNPJ é obrigatório.' });
+  }
+
+  try {
+    const [result] = await pool.query('DELETE FROM tbl_usuario WHERE usu_cpf_cnpj = ?', [cpf_cnpj]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Usuário não encontrado.' });
     }
 
-    const query = 'SELECT * FROM vw_usuario_login WHERE usu_cpf_cnpj = ?';
-
-    connection.query(query, [cpf_cnpj], (err, results) => {
-        if (err) {
-            console.error('Erro ao consultar o banco:', err);
-            return res.status(500).json({ message: 'Erro ao autenticar usuário.' });
-        }
-
-        if (results.length === 0) {
-            return res.status(400).json({ message: 'Usuário não encontrado.' });
-        }
-
-        // Comparação de senha com bcrypt
-        bcrypt.compare(senha, results[0].usu_senha, (err, isMatch) => {
-            if (err) {
-                console.error('Erro ao comparar senha:', err);
-                return res.status(500).json({ message: 'Erro ao comparar as senhas.' });
-            }
-
-            if (!isMatch) {
-                return res.status(400).json({ message: 'Senha incorreta.' });
-            }
-
-            return res.status(200).json({ 
-                message: 'Login realizado com sucesso!',
-                usu_id: results[0].usu_id
-             });
-        });
-    });
+    return res.status(200).json({ message: 'Usuário excluído com sucesso!' });
+  } catch (err) {
+    console.error('Erro ao excluir usuário:', err);
+    return res.status(500).json({ message: 'Erro ao excluir usuário.' });
+  }
 });
 
 module.exports = router;

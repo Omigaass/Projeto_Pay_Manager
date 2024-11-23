@@ -13,7 +13,6 @@ app.get('/home', (req, res) => {
     res.sendFile(path.join(__dirname, 'web/src/pages/home.html'));
 });
 
-
 const PORT = 3000;
 app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
 
