@@ -21,7 +21,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '21.6.1' # Altere para a versão necessária
+          node-version: '^21.6.1' # Altere para a versão necessária
 
       - name: Fix permissions
         run: chmod +x ./src/node_modules/.bin/*
