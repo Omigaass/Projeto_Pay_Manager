@@ -21,10 +21,10 @@ router.post('/register', async (req, res) => {
 
     const connection = await pool.getConnection();
     try {
-      const query = 'CALL sp_adicionar_usuario(?, ?, ?, ?)';
-      const values = [nome, email, cpf_cnpj, hash];
+      const query = 'CALL sp_create_usuario(?, ?, ?, ?)';
+      const values = [hash, nome, email, cpf_cnpj];
 
-      const [results] = await connection.query(query, values);
+      await connection.query(query, values);
       connection.release();
 
       return res.status(201).json({ message: 'Usuário registrado com sucesso!' });
@@ -49,7 +49,7 @@ router.post('/login', async (req, res) => {
   try {
     const connection = await pool.getConnection();
     try {
-      const query = 'SELECT * FROM vw_usuario_login WHERE usu_cpf_cnpj = ?';
+      const query = 'SELECT * FROM vw_usuario WHERE usu_cpf_cnpj = ?';
       const [results] = await connection.query(query, [cpf_cnpj]);
 
       connection.release();

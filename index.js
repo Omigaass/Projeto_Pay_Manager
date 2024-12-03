@@ -21,7 +21,7 @@ if (require.main === module) {
 }
 
 app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/web/src/pages/index.html');
+    res.sendFile(__dirname + '/src/index.html');
 });
 
 // ------------------------------ //
@@ -31,3 +31,9 @@ app.use('/api/auth', usuarioRoute);
 
 const movimentacaoRoute = require('./backend/src/routes/movimentacaoRoute');
 app.use('/api/movimentacao', movimentacaoRoute);
+
+const bancoRoute = require('./backend/src/routes/bancoRoute');
+app.use('/api/banco', bancoRoute);
+
+const categoriaRoute = require('./backend/src/routes/categoriaRoute');
+app.use('/api/categoria', categoriaRoute);
