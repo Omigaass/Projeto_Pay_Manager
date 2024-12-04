@@ -1,5 +1,4 @@
 const express = require('express');
-const bcrypt = require('bcrypt');
 const pool = require('../config/database');
 const router = express.Router();
 
@@ -15,14 +14,11 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ message: 'As senhas não coincidem.' });
   }
 
-  // Gerar hash da senha e armazenar no banco de dados
   try {
-    const hash = await bcrypt.hash(senha, 10);
-
     const connection = await pool.getConnection();
     try {
       const query = 'CALL sp_create_usuario(?, ?, ?, ?)';
-      const values = [hash, nome, email, cpf_cnpj];
+      const values = [senha, nome, email, cpf_cnpj];
 
       await connection.query(query, values);
       connection.release();
@@ -41,31 +37,32 @@ router.post('/register', async (req, res) => {
 // Rota de login (POST /login)
 router.post('/login', async (req, res) => {
   const { cpf_cnpj, senha } = req.body;
-    
+
   if (!cpf_cnpj || !senha) {
-      return res.status(400).json({ message: 'CPF/CNPJ e senha são obrigatórios.' });
+    return res.status(400).json({ message: 'CPF/CNPJ e senha são obrigatórios.' });
   }
 
   try {
     const connection = await pool.getConnection();
     try {
-      const query = 'SELECT * FROM vw_usuario WHERE usu_cpf_cnpj = ?';
+      const query = 'SELECT * FROM vw_usuario WHERE usu_cpfcnpj = ?';
       const [results] = await connection.query(query, [cpf_cnpj]);
-
       connection.release();
 
       if (results.length === 0) {
-          return res.status(400).json({ message: 'Usuário não encontrado.' });
+        return res.status(400).json({ message: 'Usuário não encontrado.' });
       }
 
-      const isMatch = await bcrypt.compare(senha, results[0].usu_senha);
+      const usuario = results[0];
+
+      const isMatch = senha == usuario.usu_senha ? true : false;
+
       if (!isMatch) {
-          return res.status(400).json({ message: 'Senha incorreta.' });
+        return res.status(400).json({ message: 'Senha incorreta.' });
       }
 
-      return res.status(200).json({ 
-          message: 'Login realizado com sucesso!',
-          usu_id: results[0].usu_id
+      return res.status(200).json({
+        message: 'Login realizado com sucesso!',
       });
     } catch (err) {
       connection.release();
@@ -77,6 +74,33 @@ router.post('/login', async (req, res) => {
     return res.status(500).json({ message: 'Erro ao conectar ao banco de dados.' });
   }
 });
+
+router.post('/deleteUsuario', async (req, res) => {
+  const { usuario } = req.body;
+
+  if (!usuario) {
+    return res.status(400).json({ message: 'Usuário não encontrado.' });
+  }
+
+  try {
+    const connection = await pool.getConnection();
+    try {
+      const query = 'CALL sp_delete_usuario(?)';
+      const values = [usuario];
+
+      await connection.query(query, values);
+      connection.release();
+
+      return res.status(200).json({ message: 'Usuário deletado com sucesso!' });
+    } catch (err) {
+      connection.release();
+      return res.status(500).json({ message: 'Erro ao registrar usuário.' });
+    }
+
+  } catch (err) {
+    return res.status(500).json({ message: 'Erro ao gerar hash da senha.' });
+  }
+})
 
 router.delete('/delete-user-p-teste', async (req, res) => {
   const { cpf_cnpj } = req.body;
