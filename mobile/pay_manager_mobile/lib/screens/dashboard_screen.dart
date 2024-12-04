@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:pay_manager_mobile/services/api_config.dart';
 
 class DashboardScreen extends StatefulWidget {
   final int userId;
@@ -25,7 +26,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> fetchMovements() async {
     final response = await http.post(
-      Uri.parse('http://192.168.1.243:3000/api/movimentacao/read'),
+      Uri.parse('http://192.168.86.11:3000/api/auth/login'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'usuario_id': widget.userId}),
     );
@@ -61,7 +62,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> deleteMovement(int id) async {
     final response = await http.post(
-      Uri.parse('http://192.168.1.243:3000/api/movimentacao/delete'),
+      Uri.parse('http://192.168.86.11:3000/api/auth/login'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'mov_id': id, 'usuario_exclusao': widget.userId}),
     );

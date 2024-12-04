@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:pay_manager_mobile/services/api_config.dart';
 
 class RegisterScreen extends StatefulWidget {
   @override
@@ -16,7 +17,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Future<void> register() async {
     final response = await http.post(
-      Uri.parse('http://192.168.1.243:3000/api/auth/register'),
+      Uri.parse('http://192.168.86.11:3000/api/auth/login'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'nome': _nomeController.text,

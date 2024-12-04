@@ -49,7 +49,7 @@ router.post('/login', async (req, res) => {
   try {
     const connection = await pool.getConnection();
     try {
-      const query = 'SELECT * FROM vw_usuario WHERE usu_cpf_cnpj = ?';
+      const query = 'SELECT * FROM vw_usuario WHERE usu_cpfcnpj = ?';
       const [results] = await connection.query(query, [cpf_cnpj]);
 
       connection.release();
@@ -86,7 +86,7 @@ router.delete('/delete-user-p-teste', async (req, res) => {
   }
 
   try {
-    const [result] = await pool.query('DELETE FROM tbl_usuario WHERE usu_cpf_cnpj = ?', [cpf_cnpj]);
+    const [result] = await pool.query('DELETE FROM tbl_usuario WHERE usu_cpfcnpj = ?', [cpf_cnpj]);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: 'Usuário não encontrado.' });
