@@ -6,7 +6,7 @@ import 'package:pay_manager_mobile/services/api_config.dart';
 class DashboardScreen extends StatefulWidget {
   final int userId;
 
-  DashboardScreen({required this.userId});
+  const DashboardScreen({Key? key, required this.userId}) : super(key: key);
 
   @override
   _DashboardScreenState createState() => _DashboardScreenState();
@@ -25,44 +25,58 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> fetchMovements() async {
-    final response = await http.post(
-      Uri.parse('http://20.0.24.163:3000/api/movimentacao/read'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'usuario_id': widget.userId}),
-    );
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      setState(() {
-        totalIncome = 0.0;
-        totalExpense = 0.0;
-        incomes = [];
-        expenses = [];
-
-        for (var item in data) {
-          final value = item['mov_valor'];
-          final description = item['mov_desc'];
-          final id = item['mov_id'];
-
-          if (value > 0) {
-            totalIncome += value;
-            incomes.add({'id': id, 'desc': description, 'value': value});
-          } else {
-            totalExpense += value.abs();
-            expenses.add({'id': id, 'desc': description, 'value': value.abs()});
-          }
-        }
-      });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao carregar movimentações')),
+    try {
+      final response = await http.post(
+        Uri.parse('http://20.0.24.163:3000/api/movimentacao/readMovimentacao'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'usuario': widget.userId}),
       );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        if (data is List) { // Verifica se a resposta é uma lista
+          setState(() {
+            totalIncome = 0.0;
+            totalExpense = 0.0;
+            incomes = [];
+            expenses = [];
+
+            for (var item in data) {
+              final value = item['mov_valor'];
+              final description = item['mov_desc'];
+              final id = item['mov_id'];
+
+              if (value > 0) {
+                totalIncome += value;
+                incomes.add({'id': id, 'desc': description, 'value': value});
+              } else {
+                totalExpense += value.abs();
+                expenses.add({'id': id, 'desc': description, 'value': value.abs()});
+              }
+            }
+          });
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Erro no formato de resposta')),
+          );
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao carregar movimentações: ${response.statusCode}')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao carregar movimentações: $e')),
+      );
+      print('Erro ao carregar movimentações: $e'); // Log detalhado
     }
   }
 
   Future<void> deleteMovement(int id) async {
     final response = await http.post(
-      Uri.parse('http://20.0.24.163:3000/api/movimentacao/delete'),
+      Uri.parse('http://20.0.24.163:3000/api/movimentacao/deleteMovimentacao'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'mov_id': id, 'usuario_exclusao': widget.userId}),
     );
@@ -105,14 +119,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ],
                 ),
                 Column(
-                children: [
-                  Text('Despesas: R\$ ${totalExpense.toStringAsFixed(2)}'),
-                  ElevatedButton(
-                    onPressed: () => Navigator.pushNamed(context, '/add-expense'), // Navega para a nova tela
-                    child: Text('Adicionar Despesa'),
-                  ),
-                ],
-              ),
+                  children: [
+                    Text('Despesas: R\$ ${totalExpense.toStringAsFixed(2)}'),
+                    ElevatedButton(
+                      onPressed: () => Navigator.pushNamed(context, '/add-expense'),
+                      child: Text('Adicionar Despesa'),
+                    ),
+                  ],
+                ),
               ],
             ),
             SizedBox(height: 20),

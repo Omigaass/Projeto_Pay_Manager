@@ -6,7 +6,7 @@ class ApiConfig {
   static Future<void> initialize() async {
     // Descobrir o IP do dispositivo
     final ip = await _getLocalIp();
-    baseUrl = 'http://192.168.86.11:3000';
+    baseUrl = '20.0.24.163:3000';
   }
 
   static Future<String> _getLocalIp() async {

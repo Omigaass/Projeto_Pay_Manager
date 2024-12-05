@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:pay_manager_mobile/services/api_config.dart';
+import 'dashboard_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -9,32 +9,68 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _cpfCnpjController = TextEditingController();
-  final _senhaController = TextEditingController();
+  final TextEditingController _cpfCnpjController = TextEditingController();
+  final TextEditingController _senhaController = TextEditingController();
+
+  bool _isLoading = false;
 
   Future<void> login() async {
-    final response = await http.post(
-      Uri.parse('http://20.0.24.163:3000/api/auth/login'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'cpf_cnpj': _cpfCnpjController.text,
-        'senha': _senhaController.text,
-      }),
-    );
+    if (_cpfCnpjController.text.isEmpty || _senhaController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('CPF/CNPJ e senha são obrigatórios.')),
+      );
+      return;
+    }
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      if (data['usu_id'] != null) {
-        Navigator.pushReplacementNamed(context, '/dashboard', arguments: data['usu_id']);
+    setState(() {
+      _isLoading = true; // Ativa o indicador de carregamento
+    });
+
+    try {
+      final response = await http.post(
+        Uri.parse('http://20.0.24.163:3000/api/auth/login'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'cpf_cnpj': _cpfCnpjController.text,
+          'senha': _senhaController.text,
+        }),
+      );
+
+      setState(() {
+        _isLoading = false; // Desativa o indicador de carregamento
+      });
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        print('Resposta do login: $data'); // Log da resposta completa
+
+        if (data['usu_id'] != null) {
+          print('usu_id recebido: ${data['usu_id']}');
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => DashboardScreen(userId: data['usu_id']),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(data['message'] ?? 'Erro no login')),
+          );
+        }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(data['message'] ?? 'Erro no login')),
+          SnackBar(content: Text('Erro: ${response.statusCode} - ${response.reasonPhrase}')),
         );
       }
-    } else {
+    } catch (e) {
+      setState(() {
+        _isLoading = false; // Desativa o indicador de carregamento em caso de erro
+      });
+
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao se conectar ao servidor')),
+        SnackBar(content: Text('Erro ao se conectar ao servidor: $e')),
       );
+      print('Erro ao fazer login: $e');
     }
   }
 
@@ -45,21 +81,33 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextField(
               controller: _cpfCnpjController,
-              decoration: InputDecoration(labelText: 'CPF/CNPJ'),
+              decoration: InputDecoration(
+                labelText: 'CPF/CNPJ',
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.number,
             ),
+            SizedBox(height: 20),
             TextField(
               controller: _senhaController,
-              decoration: InputDecoration(labelText: 'Senha'),
+              decoration: InputDecoration(
+                labelText: 'Senha',
+                border: OutlineInputBorder(),
+              ),
               obscureText: true,
             ),
             SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: login,
-              child: Text('Entrar'),
-            ),
+            _isLoading
+                ? CircularProgressIndicator() // Mostra o indicador de carregamento
+                : ElevatedButton(
+                    onPressed: login,
+                    child: Text('Entrar'),
+                  ),
+            SizedBox(height: 10),
             TextButton(
               onPressed: () => Navigator.pushNamed(context, '/register'),
               child: Text('Registrar-se'),
