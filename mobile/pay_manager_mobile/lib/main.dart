@@ -3,6 +3,7 @@ import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/add_income_screen.dart';
+import 'screens/add_expense_screen.dart';
 import 'services/api_config.dart';
 
 void main() async {
@@ -25,7 +26,8 @@ class PayManagerApp extends StatelessWidget {
         '/dashboard': (context) => DashboardScreen(
               userId: ModalRoute.of(context)!.settings.arguments as int,
             ),
-        '/add-income': (context) => AddIncomeScreen(), // Adicione a rota aqui
+        '/add-income': (context) => AddIncomeScreen(),
+        '/add-expense': (context) => AddExpenseScreen(),
       },
     );
   }

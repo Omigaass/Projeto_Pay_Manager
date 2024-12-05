@@ -14,7 +14,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> login() async {
     final response = await http.post(
-      Uri.parse('http://192.168.86.11:3000/api/auth/login'),
+      Uri.parse('http://20.0.24.163:3000/api/auth/login'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'cpf_cnpj': _cpfCnpjController.text,

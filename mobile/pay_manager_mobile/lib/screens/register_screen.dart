@@ -17,7 +17,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Future<void> register() async {
     final response = await http.post(
-      Uri.parse('http://192.168.86.11:3000/api/auth/login'),
+      Uri.parse('http://20.0.24.163:3000/api/auth/register'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'nome': _nomeController.text,

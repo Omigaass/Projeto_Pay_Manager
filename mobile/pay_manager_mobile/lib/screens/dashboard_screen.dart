@@ -26,7 +26,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> fetchMovements() async {
     final response = await http.post(
-      Uri.parse('http://192.168.86.11:3000/api/auth/login'),
+      Uri.parse('http://20.0.24.163:3000/api/movimentacao/read'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'usuario_id': widget.userId}),
     );
@@ -62,7 +62,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> deleteMovement(int id) async {
     final response = await http.post(
-      Uri.parse('http://192.168.86.11:3000/api/auth/login'),
+      Uri.parse('http://20.0.24.163:3000/api/movimentacao/delete'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'mov_id': id, 'usuario_exclusao': widget.userId}),
     );
@@ -105,14 +105,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ],
                 ),
                 Column(
-                  children: [
-                    Text('Despesas: R\$ ${totalExpense.toStringAsFixed(2)}'),
-                    ElevatedButton(
-                      onPressed: () => Navigator.pushNamed(context, '/add-expense'),
-                      child: Text('Adicionar Despesa'),
-                    ),
-                  ],
-                ),
+                children: [
+                  Text('Despesas: R\$ ${totalExpense.toStringAsFixed(2)}'),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pushNamed(context, '/add-expense'), // Navega para a nova tela
+                    child: Text('Adicionar Despesa'),
+                  ),
+                ],
+              ),
               ],
             ),
             SizedBox(height: 20),
