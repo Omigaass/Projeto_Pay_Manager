@@ -11,15 +11,12 @@ router.post('/createMovimentacao', async (req, res) => {
     return res.status(400).json({ message: 'Todos os campos são obrigatórios.' });
   }
 
-  const dataFormat = moment(data).format('YYYY-MM-DD');
-  const valorFormat = parseFloat(valor.replace(',', '.')).toFixed(2);
-
   try {
     const connection = await pool.getConnection();
     try {
       // Corrigir a quantidade de parâmetros para a chamada da procedure
       const query = 'CALL sp_create_movimentacao(?, ?, ?, ?, ?, ?, ?, ?)';
-      const values = [desc, valorFormat, dataFormat, detalhamento, categoria, banco, tipo, usuario];
+      const values = [desc, valor, data, detalhamento, categoria, banco, tipo, usuario];
 
       await connection.query(query, values);
 
@@ -44,7 +41,7 @@ router.post('/readMovimentacao', async (req, res) => {
   try {
     const connection = await pool.getConnection();
     try {
-      const query = 'SELECT * FROM vw_movimentacao WHERE mov_id = ? AND mov_ativo = 1';
+      const query = 'SELECT * FROM vw_movimentacao WHERE usu_id = ? AND mov_ativo = 1';
       const [results] = await connection.query(query, [usuario]);
 
       connection.release();

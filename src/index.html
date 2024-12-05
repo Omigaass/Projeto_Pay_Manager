@@ -87,7 +87,7 @@
       .then(response => response.json())
       .then(data => {
         if (data.usu_id) {
-          // Redirecionar para a página home.html após login bem-sucedido
+          sessionStorage.setItem('usu-id', data.usu_id);
           window.location.href = '/home';
         } else {
           alert(data.message);
@@ -108,16 +108,6 @@
       const cpf_cnpj = document.getElementById('register-cpf').value;
       const senha = document.getElementById('register-password').value;
       const confirma_senha = document.getElementById('confirm-password').value;
-
-      if (!nome || !email || !cpf_cnpj || !senha || !confirma_senha) {
-        alert('Todos os campos são obrigatórios.');
-        return;
-      }
-
-      if (senha !== confirma_senha) {
-        alert('As senhas não coincidem.');
-        return;
-      }
 
       fetch('/api/auth/register', {
         method: 'POST',

@@ -63,7 +63,9 @@ router.post('/login', async (req, res) => {
 
       return res.status(200).json({
         message: 'Login realizado com sucesso!',
+        usu_id: usuario.usu_id, // Retorna o ID do usuário
       });
+
     } catch (err) {
       connection.release();
       console.error('Erro ao consultar o banco:', err);
